@@ -49,4 +49,4 @@ kubectl exec --stdin --tty confluent-operator-7cc4fdc656-kzdnh -- /bin/bash
 ```
 
 ## References
-
+- https://docs.confluent.io/operator/2.6/co-manage-rest-api.html
