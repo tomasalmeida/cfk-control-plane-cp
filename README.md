@@ -50,3 +50,5 @@ kubectl exec --stdin --tty confluent-operator-7cc4fdc656-kzdnh -- /bin/bash
 
 ## References
 
+* CFK API reference: https://docs.confluent.io/operator/current/co-api.html
+* 
