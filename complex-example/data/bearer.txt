@@ -1,0 +1,2 @@
+username=superUser
+password=superUser

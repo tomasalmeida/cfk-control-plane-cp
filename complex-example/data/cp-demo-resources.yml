@@ -1,0 +1,84 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: cp-demo-access
+  namespace: confluent
+spec:
+  kafkaClusterRef:
+    name: kafka
+    namespace: confluent
+  kafkaRest:
+    endpoint: https://host.docker.internal:8091
+    authentication:
+      type: bearer
+      bearer:
+        secretRef: cp-demo-credential
+    tls:
+      secretRef: cp-demo-tls
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: demo-topic-1
+  namespace: confluent
+spec:
+  replicas: 2
+  partitionCount: 4
+  configs:
+    message.timestamp.type: "LogAppendTime"
+  kafkaRestClassRef:
+    name: cp-demo-access
+    namespace: confluent
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: schema-config
+  namespace: confluent
+data:
+  schema: |
+    {
+      "namespace": "examples.demo.basic",
+      "type": "record",
+      "name": "Demo",
+      "fields": [
+        {"name": "id", "type": "string"},
+        {"name": "amount", "type": "double"}
+      ]
+    }
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Schema
+metadata:
+  name: demo-topic-1-value
+  namespace: confluent
+spec:
+  data:
+    format: avro
+    configRef: schema-config
+  schemaRegistryRest:
+    endpoint: https://host.docker.internal:8085
+    authentication:
+      type: bearer
+      bearer:
+        secretRef: cp-demo-credential
+    tls:
+      secretRef: cp-demo-tls
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: alice-binding
+  namespace: confluent
+spec:
+  principal:
+    type: group
+    name: KafkaDevelopers
+  role: ResourceOwner
+  resourcePatterns:
+    - name: demo-topic
+      patternType: PREFIXED
+      resourceType: Topic
+  kafkaRestClassRef:
+    name: cp-demo-access
+    namespace: confluent
