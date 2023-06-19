@@ -1,0 +1,17 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: cp-demo-access
+  namespace: confluent
+spec:
+  kafkaClusterRef:
+    name: kafka
+    namespace: confluent
+  kafkaRest:
+    endpoint: https://host.docker.internal:8091
+    authentication:
+      type: bearer
+      bearer:
+        secretRef: cp-demo-credential
+    tls:
+      secretRef: cp-demo-tls

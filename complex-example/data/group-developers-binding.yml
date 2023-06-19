@@ -1,0 +1,38 @@
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: grp-dev-topic-binding
+  namespace: confluent
+spec:
+  principal:
+    type: group
+    name: KafkaDevelopers
+  role: ResourceOwner
+  resourcePatterns:
+    - name: demo-topic
+      patternType: PREFIXED
+      resourceType: Topic
+  kafkaRestClassRef:
+    name: cp-demo-access
+    namespace: confluent
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: grp-dev-connector-binding
+  namespace: confluent
+spec:
+  clustersScopeByIds:
+    connectClusterId: connect1
+  principal:
+    type: group
+    name: KafkaDevelopers
+  role: ResourceOwner
+  resourcePatterns:
+    - name: demo-connector-1
+      patternType: LITERAL
+      resourceType: Connector
+  kafkaRestClassRef:
+    name: cp-demo-access
+    namespace: confluent

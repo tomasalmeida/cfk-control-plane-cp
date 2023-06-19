@@ -9,6 +9,7 @@ We will not enter into details about CP-demo, in short, it is very useful to tes
 
 Get the cp-demo
 ```shell
+rm -rf cp-demo
 git clone https://github.com/confluentinc/cp-demo
 cd cp-demo
 git checkout 7.4.0-post
@@ -27,7 +28,7 @@ sed -i '' 's/"DNS.4 = kafka2"/"DNS.4 = kafka2" "DNS.5 = host.docker.internal"/g'
 
 Start cp-demo as simple as possible (it will take a while)
 ```shell
-CLEAN=true && C3_KSQLDB_HTTPS=false && VIZ=false && ./scripts/start.sh
+export CLEAN="true" && export C3_KSQLDB_HTTPS="false" && export VIZ="false" && ./scripts/start.sh
 cd ..
 ```
 
@@ -51,7 +52,9 @@ cd ..
 Create the bearer secret as super user (this will be the one used to login)
 
 ```shell
-kubectl create secret generic cp-demo-credential      --from-file=bearer.txt=./data/bearer.txt --namespace confluent
+kubectl create secret generic cp-demo-credential \
+     --from-file=bearer.txt=./data/bearer.txt \
+     --namespace confluent
 ```
 
 Create the tls configuration
@@ -66,7 +69,7 @@ kubectl create secret generic cp-demo-tls \
 ## Create the resources
 
 ```shell
-kubectl apply -f data/cp-demo-resources.yml
+kubectl apply -f data
 ```
 
 
@@ -83,12 +86,22 @@ kubectl apply -f data/cp-demo-resources.yml
 - Only this topic is visible
 
 
+## Via CLI
+
+```shell
+confluent login --url https://localhost:8091 --ca-cert-path cp-demo/scripts/security/snakeoil-ca-1.crt
+ KAFKA_CLUSTER_ID=$(curl -s https://localhost:8091/v1/metadata/id --tlsv1.2 --cacert cp-demo/scripts/security/snakeoil-ca-1.crt | jq -r ".id")
+confluent iam rbac role-binding list --principal Group:KafkaDevelopers --connect-cluster connect1 --kafka-cluster $KAFKA_CLUSTER_ID
+confluent iam rbac role-binding list --principal Group:KafkaDevelopers --kafka-cluster $KAFKA_CLUSTER_ID
+```
+
 ## Shutdown
 
 ```shell
 cd cp-demo
 ./scripts/stop.sh
 cd ..
+rm -rf cp-demo
 cd cfk
 kind delete cluster
 cd ..
