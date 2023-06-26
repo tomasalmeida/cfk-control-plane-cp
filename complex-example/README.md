@@ -2,6 +2,26 @@
 
 Using [cp-demo](https://docs.confluent.io/platform/current/tutorials/cp-demo/docs/overview.html) we will create a topic, schema and give permissions to an user.
 
+## Pre-requisites
+- Install kind (https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
+- Install helm (https://helm.sh/docs/intro/install/)
+- Install kubectl (https://kubernetes.io/docs/tasks/tools/)
+- Install docker, jq
+
+### *FOR LINUX ONLY* Update the hosts file to have the hostname
+
+Note: this command needs to run just once and only if the IP is not part of the hosts file.
+
+```shell
+echo "$(dig +short `hostname` | head -n1) host.docker.internal"  >> /etc/hosts
+```
+
+## Download this example
+
+```shell
+git clone https://github.com/tomasalmeida/cfk-control-plane-cp.git
+cd cfk-control-plane-cp/complex-example
+```
 
 ## Configure CP-demo
 
@@ -21,7 +41,7 @@ Update files to include docker host as part of the certificate
 sed -i 's/,dns:localhost/,dns:localhost,dns:host.docker.internal/g' scripts/security/certs-create-per-user.sh
 sed -i 's/"DNS.4 = kafka2"/"DNS.4 = kafka2" "DNS.5 = host.docker.internal"/g' scripts/security/certs-create-per-user.sh
 
-# while on macOS you need:
+# for macOS
 sed -i '' 's/,dns:localhost/,dns:localhost,dns:host.docker.internal/g' scripts/security/certs-create-per-user.sh
 sed -i '' 's/"DNS.4 = kafka2"/"DNS.4 = kafka2" "DNS.5 = host.docker.internal"/g' scripts/security/certs-create-per-user.sh
 ```
