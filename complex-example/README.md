@@ -2,6 +2,10 @@
 
 Using [cp-demo](https://docs.confluent.io/platform/current/tutorials/cp-demo/docs/overview.html) we will create a topic, schema and give permissions to an user.
 
+## Diagram
+
+![architecture diagram](./img/diagram.png)
+
 ## Pre-requisites
 - Install kind (https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
 - Install helm (https://helm.sh/docs/intro/install/)
