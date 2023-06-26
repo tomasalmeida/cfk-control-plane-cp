@@ -1,0 +1,38 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: Connector
+metadata:
+  name: demo-connector-1
+  namespace: confluent
+spec:
+  class: "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector"
+  taskMax: 1
+  configs:
+    consumer.interceptor.classes: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+    consumer.override.sasl.jaas.config: "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required username=\"connectorSA\" password=\"connectorSA\" metadataServerUrls=\"https://kafka1:8091,https://kafka2:8092\";"
+    
+    topics: "demo-topic-1"
+    topic.index.map: "demo-topic-1:demo-topic-1"
+    connection.url: "http://elasticsearch:9200"
+    key.ignore: "true"
+    schema.ignore: "true"
+    type.name: "_doc"
+    
+    value.converter: "io.confluent.connect.avro.AvroConverter"
+    value.converter.schema.registry.ssl.truststore.location: "/etc/kafka/secrets/kafka.client.truststore.jks"
+    value.converter.schema.registry.ssl.truststore.password: "confluent"
+    value.converter.basic.auth.credentials.source: "USER_INFO"
+    value.converter.schema.registry.url: "https://schemaregistry:8085"
+    value.converter.basic.auth.user.info: "connectorSA:connectorSA"
+    consumer.interceptor.classes: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+    key.converter.schema.registry.url: "https://schemaregistry:8085"
+  restartPolicy:
+    type: OnFailure
+    maxRetry: 20
+  connectRest:
+    endpoint: https://host.docker.internal:8083
+    authentication:
+      type: bearer
+      bearer:
+        secretRef: cp-demo-credential
+    tls:
+      secretRef: cp-demo-tls
