@@ -7,10 +7,10 @@
 
 if  grep -q "host.internal.docker" /etc/hosts
 then
-    echo "✔︎ /etc/hosts"
+    echo "✔︎ no need to update /etc/hosts"
 else
     sudo echo "$(dig +short `hostname` | head -n1) host.docker.internal"  >> /etc/hosts
-    echo "✔︎ /etc/hosts"
+    echo "✔︎ /etc/hosts updated"
 fi
 
 ./start-cp-demo-common.sh
