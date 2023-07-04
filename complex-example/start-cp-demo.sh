@@ -2,7 +2,7 @@
 
 OS=`uname -s`
 
-if  ([ "$OS" != "Linux" ] || [ grep -q "host.internal.docker" /etc/hosts ])
+if  ([ "$OS" == "Darwin" ] || [ grep -q "host.internal.docker" /etc/hosts ])
 then
     echo "✔︎ no need to update /etc/hosts"
 else
