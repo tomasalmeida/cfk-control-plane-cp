@@ -12,14 +12,6 @@ Using [cp-demo](https://docs.confluent.io/platform/current/tutorials/cp-demo/doc
 - Install kubectl (https://kubernetes.io/docs/tasks/tools/)
 - Install docker, jq
 
-### *FOR LINUX ONLY* Update the hosts file to have the hostname
-
-Note: this command needs to run just once and only if the IP is not part of the hosts file.
-
-```shell
-echo "$(dig +short `hostname` | head -n1) host.docker.internal"  >> /etc/hosts
-```
-
 ## Download this example
 
 ```shell
@@ -27,42 +19,25 @@ git clone https://github.com/tomasalmeida/cfk-control-plane-cp.git
 cd cfk-control-plane-cp/complex-example
 ```
 
-## Configure CP-demo
+## Start CP-demo
 
-We will not enter into details about CP-demo, in short, it is very useful to test Confluent Platform capabilities.
+In order to make this example easier to start, please use the shell script created to quickly start cp-demo. We will not enter into details about CP-demo, in short, it is very useful to test Confluent Platform capabilities.
 
-Get the cp-demo
 ```shell
-rm -rf cp-demo
-git clone https://github.com/confluentinc/cp-demo
-cd cp-demo
-git checkout 7.4.0-post
-```
-
-Update files to include docker host as part of the certificate
-```shell
-# for linux
-sed -i 's/,dns:localhost/,dns:localhost,dns:host.docker.internal/g' scripts/security/certs-create-per-user.sh
-sed -i 's/"DNS.4 = kafka2"/"DNS.4 = kafka2" "DNS.5 = host.docker.internal"/g' scripts/security/certs-create-per-user.sh
-
-# for macOS
-sed -i '' 's/,dns:localhost/,dns:localhost,dns:host.docker.internal/g' scripts/security/certs-create-per-user.sh
-sed -i '' 's/"DNS.4 = kafka2"/"DNS.4 = kafka2" "DNS.5 = host.docker.internal"/g' scripts/security/certs-create-per-user.sh
-```
-
-Start cp-demo as simple as possible (it will take a while)
-```shell
-export CLEAN="true" && export C3_KSQLDB_HTTPS="false" && export VIZ="false" && ./scripts/start.sh
-cd ..
+./start-cp-demo.sh
 ```
 
 ## Launch Kubernetes cluster and set the needed secrets
 
 Start the Kubernetes cluster and install the CfK
+
 ```shell
-cd cfk
-kind create cluster --config kind-basic-cluster.yaml
-kubectl cluster-info --context kind-kind
+./start-k8s.sh
+```
+
+Install CfK operator
+
+```shell
 kubectl create namespace confluent
 kubectl config set-context --current --namespace confluent
 helm repo add confluentinc https://packages.confluent.io/helm --insecure-skip-tls-verify
@@ -70,7 +45,6 @@ helm repo update
 # installing with debug enabled
 helm upgrade --install confluent-operator confluentinc/confluent-for-kubernetes --namespace confluent --set debug="true"
 kubectl get pods -A -o wide
-cd ..
 ```
 
 Create the bearer secret as super user (this will be the one used to login)
