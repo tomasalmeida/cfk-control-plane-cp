@@ -10,7 +10,7 @@ Using [cp-demo](https://docs.confluent.io/platform/current/tutorials/cp-demo/doc
 - Install kind (https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
 - Install helm (https://helm.sh/docs/intro/install/)
 - Install kubectl (https://kubernetes.io/docs/tasks/tools/)
-- Install docker, jq
+- Install docker, jq, docker-compose
 
 ## Download this example
 
@@ -96,11 +96,5 @@ confluent iam rbac role-binding list --principal Group:KafkaDevelopers --kafka-c
 ## Shutdown
 
 ```shell
-cd cp-demo
-./scripts/stop.sh
-cd ..
-rm -rf cp-demo
-cd cfk
-kind delete cluster
-cd ..
+./stop-all.sh
 ```
