@@ -66,6 +66,19 @@ kafka-console-producer --broker-list kafka-1:29092 --producer.config producer.pr
 kafka-console-consumer --bootstrap-server kafka-1:29092 --consumer.config consumer.properties --topic demo-topic-1 --from-beginning
 ```
 
+## Schema Registry
+
+### Create schema
+
+First, create a configmap containing the schema, then the schema custom resource:
+
+```shell
+kubectl apply -f customer-resources/payment-schema-configmap.yml
+kubectl apply -f customer-resources/payment-schema.yml
+```
+
+
+
 ## clean up
 
 ```shell

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: payment-schema-config
-  namespace: operator
+  namespace: confluent
 data:
   schema: |
     {

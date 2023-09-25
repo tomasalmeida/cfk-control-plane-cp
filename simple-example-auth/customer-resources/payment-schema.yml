@@ -9,24 +9,11 @@ spec:
     configRef: payment-schema-config
     format: avro
   mode: READWRITE
-  name:                       --- [5]
-  normalize:                  --- [6]
-  schemaReferences:
-    subject:                  --- [7]
-    version:                  --- [8]
-    format:                   --- [9]
-
-    avro:
-      avro:                   --- [10]
-
-    json:
-      url:                    --- [11]
-
-    protobuf:
-      file:                   --- [12]
-
-  schemaRegistryClusterRef:   --- [13]
-
-  schemaRegistryRest:         --- [14]
-
-  name:                       --- [15]
+  name: payments-value
+  normalize: true
+  schemaRegistryRest:
+    endpoint: http://schema-registry:8081
+    authentication:
+      type: basic
+      basic:
+        secretRef: simple-example-auth-credential
