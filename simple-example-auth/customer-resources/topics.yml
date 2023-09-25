@@ -8,5 +8,5 @@ spec:
   partitionCount: 4
   configs:
     message.timestamp.type: "LogAppendTime"
-  kafkaRest:
-    endpoint: http://kafka-3:8090
+  kafkaRestClassRef:
+    name: default

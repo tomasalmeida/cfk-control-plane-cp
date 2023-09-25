@@ -1,0 +1,32 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: Schema
+metadata:
+  name: payment-schema
+  namespace: confluent
+spec:
+  compatibilityLevel: BACKWARD
+  data:
+    configRef: payment-schema-config
+    format: avro
+  mode: READWRITE
+  name:                       --- [5]
+  normalize:                  --- [6]
+  schemaReferences:
+    subject:                  --- [7]
+    version:                  --- [8]
+    format:                   --- [9]
+
+    avro:
+      avro:                   --- [10]
+
+    json:
+      url:                    --- [11]
+
+    protobuf:
+      file:                   --- [12]
+
+  schemaRegistryClusterRef:   --- [13]
+
+  schemaRegistryRest:         --- [14]
+
+  name:                       --- [15]

@@ -1,12 +1,10 @@
-kind: KafkaRestClass
+kind: SchemaRegistry
 apiVersion: platform.confluent.io/v1beta1
 metadata:
   name: default
   namespace: confluent
 spec:
   kafkaRest:
-    authentication:
-      basic:
-        secretRef: simple-example-auth-credential
-      type: basic
+    #endpoint: http://host.docker.internal:8090
     endpoint: http://kafka-3:8090
+    kafkaRestClassRef: default
