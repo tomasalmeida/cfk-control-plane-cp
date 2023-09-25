@@ -41,5 +41,5 @@ docker-compose down -v
 ## Commands
 ```shell
 # get a shell in operator pod
-kubectl exec --stdin --tty confluent-operator-7cc4fdc656-kzdnh -- /bin/bash
+kubectl exec --stdin --tty deploy/confluent-operator -- /bin/bash
 ```
