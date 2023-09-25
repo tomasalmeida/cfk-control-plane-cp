@@ -1,0 +1,217 @@
+---
+version: '3.9'
+
+services:
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:${TAG}
+    hostname: zookeeper-1
+    container_name: zookeeper-1
+    ports:
+      - "2181:2181"
+    networks:
+      kafka-cfk-cp:
+          ipv4_address: 172.27.0.2
+      #kind
+    volumes:
+      - ./config/zookeeper.sasl.jaas.conf:/etc/kafka/zookeeper_server_jaas.conf
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_OPTS: -Dzookeeper.4lw.commands.whitelist=* -Djava.security.auth.login.config=/etc/kafka/zookeeper_server_jaas.conf
+          -DauthProvider.sasl=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
+      #KAFKA_OPTS: -Dzookeeper.4lw.commands.whitelist=* -Djava.security.auth.login.config=/etc/kafka/zookeeper_server_jaas.conf
+      #    -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
+      #    -Dzookeeper.allowSaslFailedClients=false
+      #    -Dzookeeper.requireClientAuthScheme=sasl
+
+  kafka-1:
+    image: confluentinc/cp-server:${TAG}
+    container_name: kafka-1
+    hostname: kafka-1
+    depends_on:
+        - zookeeper-1
+    ports:
+      - "29092:29092"
+    networks:
+      kafka-cfk-cp:
+          ipv4_address: 172.27.0.11
+      kind:
+    volumes:
+      - ./config/kafka.client.sasl.jaas.conf:/etc/kafka/kafka_server_jaas.conf
+    environment:
+        KAFKA_BROKER_ID: 1
+        KAFKA_ZOOKEEPER_CONNECT: 'zookeeper-1:2181'
+        KAFKA_LISTENER: INTERNAL://kafka-1:9092,OUTSIDE://localhost:29092
+        KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:9092,OUTSIDE://localhost:29092
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
+        KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+        KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+        KAFKA_LISTENER_NAME_INTERNAL_SASL_ENABLED_MECHANISMS: PLAIN
+        KAFKA_LISTENER_NAME_OUTSIDE_SASL_ENABLED_MECHANISMS: PLAIN
+        KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+        KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf"
+        KAFKA_LISTENER_NAME_INTERNAL_PLAIN_SASL_JAAS_CONFIG:  org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                              username="admin" \
+                                                              password="admin-secret" \
+                                                              user_admin="admin-secret" ;
+        KAFKA_LISTENER_NAME_OUTSIDE_PLAIN_SASL_JAAS_CONFIG:   org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                              username="admin" \
+                                                              password="admin-secret" \
+                                                              user_admin="admin-secret" \
+                                                              user_producer="producer-secret" \
+                                                              user_consumer="consumer-secret" ;
+        KAFKA_SASL_JAAS_CONFIG:                               org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                              username="admin" \
+                                                              password="admin-secret" ;
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+        KAFKA_KAFKA_REST_ENABLE: "true"
+
+  kafka-2:
+    image: confluentinc/cp-server:${TAG}
+    container_name: kafka-2
+    hostname: kafka-2
+    depends_on:
+        - zookeeper-1
+    ports:
+      - "29093:29093"
+    networks:
+      kafka-cfk-cp:
+          ipv4_address: 172.27.0.12
+      kind:
+    volumes:
+      - ./config/kafka.client.sasl.jaas.conf:/etc/kafka/kafka_server_jaas.conf
+    environment:
+        KAFKA_BROKER_ID: 2
+        KAFKA_ZOOKEEPER_CONNECT: 'zookeeper-1:2181'
+        KAFKA_LISTENER: INTERNAL://kafka-2:9092,OUTSIDE://localhost:29093
+        KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:9092,OUTSIDE://localhost:29093
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
+        KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+        KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+        KAFKA_LISTENER_NAME_INTERNAL_SASL_ENABLED_MECHANISMS: PLAIN
+        KAFKA_LISTENER_NAME_OUTSIDE_SASL_ENABLED_MECHANISMS: PLAIN
+        KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+        KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf"
+        KAFKA_LISTENER_NAME_INTERNAL_PLAIN_SASL_JAAS_CONFIG:    org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                              username="admin" \
+                                                              password="admin-secret" \
+                                                              user_admin="admin-secret" ;
+        KAFKA_LISTENER_NAME_OUTSIDE_PLAIN_SASL_JAAS_CONFIG:   org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                              username="admin" \
+                                                              password="admin-secret" \
+                                                              user_admin="admin-secret" \
+                                                              user_producer="producer-secret" \
+                                                              user_consumer="consumer-secret" ;
+        KAFKA_SASL_JAAS_CONFIG:                               org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                              username="admin" \
+                                                              password="admin-secret" ;
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+        KAFKA_KAFKA_REST_ENABLE: "true"
+
+  kafka-3:
+    image: confluentinc/cp-server:${TAG}
+    container_name: kafka-3
+    hostname: kafka-3
+    depends_on:
+        - zookeeper-1
+    ports:
+      - "29094:29094"
+      - "8090:8090"
+    networks:
+      kafka-cfk-cp:
+          ipv4_address: 172.27.0.13
+      kind:
+    volumes:
+      - ./config/kafka.client.sasl.jaas.conf:/etc/kafka/kafka_server_jaas.conf
+    environment:
+        KAFKA_BROKER_ID: 3
+        KAFKA_ZOOKEEPER_CONNECT: 'zookeeper-1:2181'
+        KAFKA_LISTENER: INTERNAL://kafka-3:9092,OUTSIDE://localhost:29094
+        KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:9092,OUTSIDE://localhost:29094
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
+        KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+        KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+        KAFKA_LISTENER_NAME_INTERNAL_SASL_ENABLED_MECHANISMS: PLAIN
+        KAFKA_LISTENER_NAME_OUTSIDE_SASL_ENABLED_MECHANISMS: PLAIN
+        KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+        KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf"
+        KAFKA_LISTENER_NAME_INTERNAL_PLAIN_SASL_JAAS_CONFIG:    org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                              username="admin" \
+                                                              password="admin-secret" \
+                                                              user_admin="admin-secret" ;
+        KAFKA_LISTENER_NAME_OUTSIDE_PLAIN_SASL_JAAS_CONFIG:   org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                              username="admin" \
+                                                              password="admin-secret" \
+                                                              user_admin="admin-secret" \
+                                                              user_producer="producer-secret" \
+                                                              user_consumer="consumer-secret" ;
+        KAFKA_SASL_JAAS_CONFIG:                               org.apache.kafka.common.security.plain.PlainLoginModule required \
+                                                              username="admin" \
+                                                              password="admin-secret" ;
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+        KAFKA_KAFKA_REST_ENABLE: "true"
+        KAFKA_KAFKA_REST_ADVERTISED_LISTENERS: 'http://0.0.0.0:8090'
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:${TAG}
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - zookeeper-1
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    ports:
+      - '8081:8081'
+    networks:
+      kafka-cfk-cp:
+          ipv4_address: 172.27.0.21
+      kind:
+    #volumes:
+    #  - ./config/schema-registry.sasl.jaas.conf:/etc/kafka/schema-registry_jaas.conf
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka-1:9092'
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_MECHANISM: PLAIN
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_JAAS_CONFIG: |
+          org.apache.kafka.common.security.plain.PlainLoginModule required \
+          username="admin" \
+          password="admin-secret";
+  
+#  control-center:
+#    image: confluentinc/cp-enterprise-control-center:${TAG}
+#    hostname: control-center
+#    container_name: control-center
+#    depends_on:
+#      - kafka-1
+#      - schema-registry
+#    ports:
+#      - "9021:9021"
+#    networks:
+#      kafka-cfk-cp:
+#          ipv4_address: 172.27.0.31
+#    environment:
+#      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'kafka-1:9092'
+#      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+#      CONTROL_CENTER_REPLICATION_FACTOR: 1
+#      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+#      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+#      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+#      PORT: 9021
+
+networks:
+  kafka-cfk-cp:
+    name: kafka-cfk-cp
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.27.0.0/24
+          gateway: 172.27.0.1
+  kind:
+    name: kind
+    external: true
