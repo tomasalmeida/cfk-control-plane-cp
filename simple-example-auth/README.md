@@ -69,6 +69,8 @@ Please have a look below to find out how to check that all resources have been c
 This describes how CP has been set up automatically and shows how to test certain features.
 ### Using ACLs for schema registry
 
+ACLs should have been set up already (if used the `up` script). You can check them.
+
 List ACLs:
 
 ```shell
@@ -103,7 +105,9 @@ Then, run curl to get the list of schemas:
 curl -H "AUTHORIZATION: Basic $BEARER_ADMIN" schema-registry:8081/subjects
 ```
 
-Try registering a schema:
+You should see "payments-value" in the list, which has been created by CFK.
+
+Try registering another schema:
 
 ```shell
 curl -X POST -H "AUTHORIZATION: Basic $BEARER_ADMIN" -H "Content-Type: application/vnd.schemaregistry.v1+json"  schema-registry:8081/subjects/Kafka-value/versions/  -d '{ "schema":"{\"type\":\"record\",\"name\":\"PositionValue\",\"namespace\":\"clients.avro\",\"fields\":[{\"name\":\"latitude\",\"type\":\"double\"},{\"name\":\"longitude\",\"type\":\"double\"}]}"}'
