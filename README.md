@@ -7,6 +7,10 @@ CfK allows us to control resources outside kubernetes. It would be useful to use
 
 How to create a topic using cfk and Confluent Platform deployed using docker.
 
+## [simple-example-auth](simple-example-auth/)
+
+How to create a topic and a schema using cfk and Confluent Platform with authentication enabled, deployed using docker.
+
 ## [complex-example](complex-example/)
 
 Using [cp-demo](https://docs.confluent.io/platform/current/tutorials/cp-demo/docs/overview.html) we will create a topic, schema and give permissions to an user.
