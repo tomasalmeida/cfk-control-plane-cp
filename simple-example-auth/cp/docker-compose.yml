@@ -165,18 +165,31 @@ services:
     networks:
       kafka-cfk-cp:
       kind:
-    #volumes:
-    #  - ./config/schema-registry.sasl.jaas.conf:/etc/kafka/schema-registry_jaas.conf
+    volumes:
+    # For managing authorization for clients connecting to schema registry
+      - ./config/client-schema-registry-login.jaas.conf:/etc/kafka/client-schema-registry-login.jaas.conf
+      - ./config/client-schema-registry-login.password.conf:/etc/kafka/client-schema-registry-login.password.conf
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka-1:9092'
       SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: "1"
+      SCHEMA_REGISTRY_CONFLUENT_LICENSE_REPLICATION_FACTOR: 1
       SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: SASL_PLAINTEXT
       SCHEMA_REGISTRY_KAFKASTORE_SASL_MECHANISM: PLAIN
+      # The next lines configure how schema registry authenticates to the kafka brokers
       SCHEMA_REGISTRY_KAFKASTORE_SASL_JAAS_CONFIG: |
           org.apache.kafka.common.security.plain.PlainLoginModule required \
           username="admin" \
           password="admin-secret";
+      SCHEMA_REGISTRY_AUTHENTICATION_METHOD: BASIC
+      SCHEMA_REGISTRY_AUTHENTICATION_ROLES: admin,write,read
+      SCHEMA_REGISTRY_CONFLUENT_TOPIC_ACL_SUPER_USERS: admin
+      SCHEMA_REGISTRY_AUTHENTICATION_REALM: SchemaRegistry-Props
+      SCHEMA_REGISTRY_CONFLUENT_SCHEMA_REGISTRY_AUTH_MECHANISM: JETTY_AUTH
+      SCHEMA_REGISTRY_SCHEMA_REGISTRY_RESOURCE_EXTENSION_CLASS: io.confluent.kafka.schemaregistry.security.SchemaRegistrySecurityResourceExtension
+      SCHEMA_REGISTRY_CONFLUENT_SCHEMA_REGISTRY_AUTHORIZER_CLASS: io.confluent.kafka.schemaregistry.security.authorizer.schemaregistryacl.SchemaRegistryAclAuthorizer
+      SCHEMA_REGISTRY_OPTS: '-Djava.security.auth.login.config=/etc/kafka/client-schema-registry-login.jaas.conf'
   
 #  control-center:
 #    image: confluentinc/cp-enterprise-control-center:${TAG}

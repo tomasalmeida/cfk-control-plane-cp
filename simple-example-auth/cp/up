@@ -1,0 +1,24 @@
+#!/bin/bash
+
+docker-compose up -d
+
+docker-compose logs schema-registry | grep "Server started, listening for requests"
+while (( $? == 1 ))
+do
+    sleep 1
+    echo "Waiting for schema registry to be started ..."
+    docker-compose logs schema-registry | grep "Server started, listening for requests"
+done
+
+docker-compose exec schema-registry sr-acl-cli --config /etc/schema-registry/schema-registry.properties --add -s '*' -p admin -o '*'
+docker-compose exec schema-registry sr-acl-cli --config /etc/schema-registry/schema-registry.properties --add -s '*' -o SUBJECT_READ -p producer
+docker-compose exec schema-registry sr-acl-cli --config /etc/schema-registry/schema-registry.properties --add -o GLOBAL_COMPATIBILITY_READ -p producer
+docker-compose exec schema-registry sr-acl-cli --config /etc/schema-registry/schema-registry.properties --add -s '*' -o SUBJECT_READ -p consumer
+docker-compose exec schema-registry sr-acl-cli --config /etc/schema-registry/schema-registry.properties --add -o GLOBAL_COMPATIBILITY_READ -p consumer
+
+echo "Schema Registry is listening on http://localhost:8081"
+echo "-> user:password  |  description"
+echo "-> _____________"
+echo "-> producer:producer-secret    |  Global read access"
+echo "-> consumer:consumer-secret    |  Global read access"
+echo "-> admin:admin-secret  |  Global admin access"
