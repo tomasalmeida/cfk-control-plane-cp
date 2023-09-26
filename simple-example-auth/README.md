@@ -77,7 +77,85 @@ kubectl apply -f customer-resources/payment-schema-configmap.yml
 kubectl apply -f customer-resources/payment-schema.yml
 ```
 
+### ACLs for schema registry:
 
+List ACLs:
+
+```shell
+sr-acl-cli --config ./schema-registry-admin.properties --list
+```
+
+Use the following only if you haven't used the "up" script:
+Grant "admin" access to everything, "producer" and "consumer" only read access (but to all subjects!):
+
+```shell
+sr-acl-cli --config ./schema-registry-admin.properties --add -s '*' -p admin -o '*'
+sr-acl-cli --config ./schema-registry-admin.properties --add -s '*' -o SUBJECT_READ -p producer
+sr-acl-cli --config ./schema-registry-admin.properties --add -o GLOBAL_COMPATIBILITY_READ -p producer
+sr-acl-cli --config ./schema-registry-admin.properties --add -s '*' -o SUBJECT_READ -p consumer
+sr-acl-cli --config ./schema-registry-admin.properties --add -o GLOBAL_COMPATIBILITY_READ -p consumer
+```
+
+``
+### List schemas with curl
+
+First, get a bearer token to perform basic auth:
+
+```shell
+export BEARER_ADMIN=$(echo -n "admin:admin-secret" | base64)
+export BEARER_PRODUCER=$(echo -n "producer:producer-secret" | base64)
+export BEARER_CONSUMER=$(echo -n "consumer:consumer-secret" | base64)
+```
+
+Then, run curl to get the list of schemas:
+
+```shell
+curl -H "AUTHORIZATION: Basic $BEARER_ADMIN" schema-registry:8081/subjects
+```
+
+Try registering a schema:
+
+```shell
+curl -X POST -H "AUTHORIZATION: Basic $BEARER_ADMIN" -H "Content-Type: application/vnd.schemaregistry.v1+json"  schema-registry:8081/subjects/Kafka-value/versions/  -d '{ "schema":"{\"type\":\"record\",\"name\":\"PositionValue\",\"namespace\":\"clients.avro\",\"fields\":[{\"name\":\"latitude\",\"type\":\"double\"},{\"name\":\"longitude\",\"type\":\"double\"}]}"}'
+```
+
+Show versions of schema:
+
+```shell
+curl -H "AUTHORIZATION: Basic $BEARER_ADMIN" schema-registry:8081/subjects/Kafka-value/versions
+```
+
+Show the schema (use one of the versions shown by the last command, in the example we use "4"):
+
+```shell
+curl -H "AUTHORIZATION: Basic $BEARER_ADMIN" schema-registry:8081/subjects/Kafka-value/versions/1
+```
+
+Try registering a schema as "producer" (should not work):
+
+```shell
+curl -X POST -H "AUTHORIZATION: Basic $BEARER_PRODUCER" -H "Content-Type: application/vnd.schemaregistry.v1+json"  schema-registry:8081/subjects/Kafka-value/versions/  -d '{ "schema":"{\"type\":\"record\",\"name\":\"PositionValue\",\"namespace\":\"clients.avro\",\"fields\":[{\"name\":\"latitude\",\"type\":\"double\"},{\"name\":\"longitude\",\"type\":\"double\"}]}"}'
+```
+
+List schema as "producer" (should work):
+
+```shell
+curl -H "AUTHORIZATION: Basic $BEARER_PRODUCER" schema-registry:8081/subjects/Kafka-value/versions/1
+```
+
+Try to delete the schema as "producer" (should not work):
+
+```shell
+curl -H "AUTHORIZATION: Basic $BEARER_PRODUCER" -X DELETE http://localhost:8081/subjects/Kafka-value
+```
+
+
+
+Delete the schema as "admin":
+
+```shell
+curl -H "AUTHORIZATION: Basic $BEARER_ADMIN" -X DELETE http://localhost:8081/subjects/Kafka-value
+```
 
 ## clean up
 
