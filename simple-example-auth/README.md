@@ -27,10 +27,10 @@ cd ..
 
 ### Create admin rest class and secret with credentials for accessing brokers and schema registry
 
-Run in folder `cfk`:
+Run in main folder:
 
 ```shell
-kubectl apply -f cfk/admin-rest-class
+kubectl apply -f cfk/admin-rest-class.yml
 kubectl apply -f cfk/admin-secret.yml
 ```
 
@@ -48,9 +48,45 @@ kafka-topics --bootstrap-server kafka-1:29092 --command-config producer.properti
 
 ### Produce/Consume to topic
 
+Try to produce/consume to/from a non-existing topic (this should fail):
 ```bash
 kafka-console-producer --broker-list kafka-1:29092 --producer.config producer.properties --topic demo-topic-1
 kafka-console-consumer --bootstrap-server kafka-1:29092 --consumer.config consumer.properties --topic demo-topic-1 --from-beginning
+```
+
+Try to produce/consume to/from a non-existing topic (this should fail):
+```bash
+export SCHEMA='{
+    "namespace": "io.confluent.examples.clients.basicavro",
+    "type": "record",
+    "name": "Payment",
+    "fields": [
+    {"name": "id", "type": "string"},
+    {"name": "amount", "type": "double"},
+    {"name": "email", "type": "string"}
+    ]
+}'
+kafka-avro-console-producer --broker-list kafka-1:29092 --producer.config producer.properties \
+    --topic payments   --property schema.registry.url=http://localhost:8081 \
+    --property auto.register=false --property use.latest.version=true \
+    --property basic.auth.credentials.source=USER_INFO \
+    --property basic.auth.user.info=producer:producer-secret \
+    --property value.schema="$SCHEMA"
+```
+
+Consume from the topic:
+
+```shell
+kafka-avro-console-consumer --bootstrap-server kafka-1:29092 --consumer.config consumer.properties \
+    --topic payments --from-beginning \
+    --property basic.auth.credentials.source=USER_INFO \
+    --property basic.auth.user.info=producer:producer-secret
+```
+
+Use these values:
+
+```
+{"id": "1", "amount": 42.0, "email": "test@example.com"}
 ```
 
 ### Schema Registry
