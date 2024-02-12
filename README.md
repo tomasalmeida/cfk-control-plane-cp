@@ -11,7 +11,7 @@ How to create a topic using cfk and Confluent Platform deployed using docker.
 
 How to create a topic and a schema using cfk and Confluent Platform with authentication enabled, deployed using docker.
 
-## [complex-example](complex-example/)
+## [cp-demo-example](cp-demo-example/)
 
 Using [cp-demo](https://docs.confluent.io/platform/current/tutorials/cp-demo/docs/overview.html) we will create a topic, schema and give permissions to an user.
 

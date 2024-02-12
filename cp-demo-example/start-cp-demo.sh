@@ -16,8 +16,8 @@ git clone https://github.com/confluentinc/cp-demo
 echo "✔︎ cp-demo cloned"
 
 cd cp-demo
-git checkout 7.4.0-post
-echo "✔︎ CP 7.4.0 defined"
+git checkout 7.5.1-post
+echo "✔︎ CP 7.5.1 defined"
 
 if  [ "$OS" == "Linux" ]
 then
@@ -28,5 +28,5 @@ else
     sed -i '' 's/"DNS.4 = kafka2"/"DNS.4 = kafka2" "DNS.5 = host.docker.internal"/g' scripts/security/certs-create-per-user.sh
 fi
 
-export CLEAN="true" && export C3_KSQLDB_HTTPS="false" && export VIZ="false" && ./scripts/start.sh
+CLEAN=true C3_KSQLDB_HTTPS=false VIZ=false ./scripts/start.sh
 cd ..
